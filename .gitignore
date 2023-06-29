@@ -1,4 +1,5 @@
 workspace
+.DS_Store
 # Logs
 logs
 *.log

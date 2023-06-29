@@ -2,11 +2,28 @@ const {Client} = require('@notionhq/client');
 const fs = require('fs');
 const notion = new Client({auth: process.env.NOTION_KEY});
 
-(async () => {
-    fs.mkdir("workspace", ()=>{});
-    await retrieve_pages();
-    console.log("done!");
-})();
+if (!process.argv[2]) {
+    print_help();
+    return 1;
+}
+const flag = process.argv[2];
+
+if (flag === "--pull") {
+    (async () => {
+        fs.mkdir("workspace", ()=>{});
+        await retrieve_pages();
+        console.log("done!");
+        return 0;
+    })();
+} else if (flag === "--update") {
+    (async () => {
+        await update_block(process.argv[3], process.argv[4])
+        return 0;
+    })();
+} else {
+    print_help();
+    return 1
+}
 
 async function retrieve_pages(query) {
     const response = await notion.search(query);
@@ -34,6 +51,10 @@ async function retrieve_page(page_name, page_id) {
         console.log("\tFound block type of %s: ", block_t);
         if (blk[block_t].rich_text === undefined) continue;
         let block = blk[block_t];
+        write("[notionvim=");
+        write(blk.id);
+        console.log(blk.id);
+        write("]");
         for (rtxt of block.rich_text) {
             write(parse_md_type(block_t, block));
             let ptxt = rtxt?.plain_text;
@@ -45,6 +66,7 @@ async function retrieve_page(page_name, page_id) {
         endl();
     }
 }
+
 function parse_md_type(block_t, block) {
     switch (block_t) {
         case "heading_1":
@@ -60,6 +82,7 @@ function parse_md_type(block_t, block) {
             return "";
     }
 }
+
 function parse_md_anno(annotations)
 {
     let _buf = "";
@@ -69,6 +92,20 @@ function parse_md_anno(annotations)
     if(annotations.underline) _buf += "_";
     if(annotations.code) _buf += "`";
     return _buf;
+}
+
+async function update_block(block_id, content) {
+    const response = await notion.blocks.update({
+        "block_id": block_id,
+        "paragraph": {
+            "rich_text": [{
+                "text": {
+                    "content": content
+                }
+            }]
+        }
+    });
+    console.log("update block: %s", response);
 }
 
 
@@ -88,4 +125,8 @@ function flush() {
 function fwrite(fd, _buf) {
     fs.writeFile("workspace/" + fd, _buf, ()=>{});
     flush();
+}
+
+function print_help() {
+    console.log("usage:\n--pull\n--update <block_id> <content>");
 }

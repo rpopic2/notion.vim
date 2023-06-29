@@ -1,6 +1,6 @@
 {
     "main": "index.js",
     "dependencies": {
-    "@notionhq/client": "^2.2.3"
-  }
+        "@notionhq/client": "^2.2.5"
+    }
 }
