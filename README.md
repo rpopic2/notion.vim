@@ -43,3 +43,16 @@ Pull all pages with integration connected.
 `:NotionVimUpdateLine`
 
 Update line currently under cursor.
+
+# Tips
+
+Use `autocmd` to automatically call functions.
+
+Example:
+```vim
+augroup notion_vim_au
+    autocmd!
+    au BufRead *.md call s:NotionvimPull()
+    au CursorHold *.md call s:NotionvimUpdate()
+augroup end
+```
