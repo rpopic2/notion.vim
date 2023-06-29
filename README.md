@@ -38,8 +38,8 @@ Add connection to integration on your page by pressing ... button -> Connections
 
 `:NotionVimPull`
 
-It pulls all pages with integration connected.
+Pull all pages with integration connected.
 
 `:NotionVimUpdateLine`
 
-It updates line currently under cursor.
+Update line currently under cursor.
